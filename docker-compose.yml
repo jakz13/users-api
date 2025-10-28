@@ -1,0 +1,49 @@
+version: "3.8"
+services:
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: usersdb
+      POSTGRES_USER: usersuser
+      POSTGRES_PASSWORD: userspass
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  users-api:
+    build: ./backend
+    command: gunicorn --bind 0.0.0.0:8000 users_api.wsgi:application
+    environment:
+      - DJANGO_SETTINGS_MODULE=users_api.settings_canonical
+      - DB_ENGINE=django.db.backends.postgresql
+      - DB_NAME=usersdb
+      - DB_USER=usersuser
+      - DB_PASSWORD=userspass
+      - DB_HOST=db
+      - DB_PORT=5432
+      - NOTIFICATION_SERVICE_URL=http://notification-service:5000/notify
+      - DJANGO_DEBUG=True
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - notification-service
+
+  notification-service:
+    build: ./notification-service
+    environment:
+      - SMTP_SERVER=mailhog
+      - SMTP_PORT=1025
+      - ADMIN_EMAIL=${ADMIN_EMAIL}
+    ports:
+      - "5000:5000"
+    depends_on:
+      - mailhog
+
+  mailhog:
+    image: mailhog/mailhog:latest
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+
+volumes:
+  db_data:
