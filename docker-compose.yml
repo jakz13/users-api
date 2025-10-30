@@ -29,7 +29,7 @@ services:
       - notification-service
 
   notification-service:
-    build: ./notification-service
+    build: ../notification-service/notification-service
     environment:
       - SMTP_SERVER=mailhog
       - SMTP_PORT=1025

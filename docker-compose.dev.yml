@@ -29,7 +29,7 @@ services:
       - notification-service
 
   notification-service:
-    build: ./notification-service
+    build: ../notification-service/notification-service
     environment:
       # Use MailHog (local SMTP) for development by default. Overwrite with real SMTP in production.
       - SMTP_SERVER=mailhog
